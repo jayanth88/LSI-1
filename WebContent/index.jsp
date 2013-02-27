@@ -35,31 +35,39 @@ function readCookie(name) {
 }
 
 
+function limitText(limitField, limitNum) {
+    if (limitField.value.length > limitNum) {
+        limitField.value = limitField.value.substring(0, limitNum);
+        alert("Limit is 150 characters");
+    }
+    
+}
+
 </script>
 
 
 </head>
 		<body onload="readCookie('CS5300PROJ1SESSION')">
 		<big><big><b id = "userGreeting">
-		<!--  Hello, User!-->
 			<%=request.getAttribute("name")%>		
 		</b>
 		<br>&nbsp;<br></big></big>
-		<form method=GET action="index">
+		<form method=POST action="ActionServer">
 		<input type=submit name=cmd value=Replace>&nbsp;&nbsp;
-		<input type=text name=NewText size=40 maxlength=512>&nbsp;&nbsp;
+		<input type=text name=NewText size=40 onkeyup="limitText(this,150)">&nbsp;&nbsp;
 		</form>
-		<!--<form method=POST action="index">
+		<form method=POST action="ActionServer">
 		<input type=submit name=cmd value=Refresh>
-		</form>-->
-		<form method=GET action="index">
+		</form>
+		<form method=POST action="ActionServer">
 		<input type=submit name=cmd value=LogOut>
 		</form>
 		<p>
-		
+		  
 		<b>Session on</b><div id  = "sessionInfo"><u>Dummydata 123.45.67.89:80</u></div><br/>
-		
+		 
 		<p>
+		<b><%=request.getAttribute("timestamp")%></b>		
 		
 		<b>Expires</b><div id  = "exprationInfo"><u>Dummy DataFebruary 29, 2012 2:09:29 PM EST</u></div><br/>
 		
