@@ -65,6 +65,6 @@ function limitText(limitField, limitNum)
 		<b><%=request.getAttribute("timestamp")%></b>		
 		
 		<br/><br/><b>Location :</b>&nbsp;
-		<div id  = "locationMetadata"><u>Dummy DataFebruary 29, 2012 2:09:29 PM EST</u></div><br/>
+		<div id  = "locationMetadata"></div><br/>
 		</body>
 </html>

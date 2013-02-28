@@ -9,7 +9,7 @@ import java.util.Iterator;
  */
 public class DaemonThread extends Thread
 {	
-	final int gcThreadSleepTime =  80000;
+	final int gcThreadSleepTime =  120000; // in milliseconds
 	public void run()
 	{
 		while(true)

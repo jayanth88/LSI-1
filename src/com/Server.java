@@ -22,7 +22,7 @@ public class Server extends HttpServlet
 {
 	static Hashtable<String, SessionDetails> sessionMap = new Hashtable<String, SessionDetails>(); 
 	static  int counter = 0; 
-	static int sessionTimeOutDuration = 1; // in minutes
+	static int sessionTimeOutDuration = 60; // in seconds
 	private static final long serialVersionUID = 1L;
 	DaemonThread garbageCollector=new DaemonThread();
      
@@ -30,16 +30,32 @@ public class Server extends HttpServlet
         super();
         garbageCollector.start();
         }
-   
+ 
+
+	public static String getNewCookieName(HttpServletRequest request)
+	{
+		String locationMetadata=request.getLocalAddr()+":"+request.getServerPort();
+		String sessionID = request.getLocalAddr().replace(".", "")+((counter++)%99999);
+		String cookieValue = sessionID+"_"+1+"_"+locationMetadata;
+		ServerUtilities.register(sessionID, locationMetadata);
+		return cookieValue;
+	}
+	
+	public static String getOldCookieName(SessionDetails sd)
+	{
+		String cookieValue = sd.getSessionID()+"_"+sd.getVersion()+"_"+sd.getLocationMetadata();
+		return cookieValue;
+	}
+    
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
 		Cookie[] cookies = request.getCookies();
+		String cookieValue = ServerUtilities.getCookieValue(cookies, "CS5300PROJ1SESSION");
+		SessionDetails sd;
 		
-		if(cookies!=null &&  ServerUtilities.getCookieValue(cookies, "CS5300PROJ1SESSION")!= "")
+		if(!cookieValue.equals("")) // cookie present. User must have manually refreshed page
 		{
-			String values[] = ServerUtilities.getCookieValue(cookies, "CS5300PROJ1SESSION").split("_");
-			SessionDetails sd = ServerUtilities.getRegisteredSession(values[0]);
-			
+			sd = ServerUtilities.retrieveFromSessionMap(cookieValue);
 			request.setAttribute("name", sd.getMessage());
 			request.setAttribute("timestamp", sd.getTimeStamp());
 			request.getRequestDispatcher("index.jsp").forward(request, response);
@@ -47,16 +63,17 @@ public class Server extends HttpServlet
 		else
 		{
 			// Setup the server for the first time over here
-			String locationMetadata=request.getLocalAddr()+":"+request.getServerPort();
-			String sessionid = request.getLocalAddr().replace(".", "")+((Server.counter++)%99999); 
-			SessionDetails sd = ServerUtilities.register(sessionid,locationMetadata);
+			cookieValue = getNewCookieName(request); // will also register it
 			
-			String cookieValue = sd.getSessionID()+"_"+sd.getVersion()+"_"+sd.getLocationMetadata();
+			
 			Cookie cookie = new Cookie ("CS5300PROJ1SESSION", cookieValue);
-			cookie.setMaxAge(sessionTimeOutDuration*60);
+			cookie.setMaxAge(sessionTimeOutDuration);
+			response.addCookie(cookie);
+			
+			sd = ServerUtilities.retrieveFromSessionMap(cookieValue);
+
 			request.setAttribute("name", sd.getMessage());
 			request.setAttribute("timestamp", sd.getTimeStamp());
-			response.addCookie(cookie);
 			request.getRequestDispatcher("index.jsp").forward(request, response);
 		}
 	}

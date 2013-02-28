@@ -79,5 +79,12 @@ public class SessionDetails
 		}
 		return true;
 	}
+	
+	public String toString()
+	{
+		String text = "SessionID: "+sessionID+" LocationMetadata: "+locationMetadata+
+				" TimeStamp: "+timeStamp+" Version: "+version+"\nMessage: \""+message+"\"";
+		return text;
+	}
 }
  

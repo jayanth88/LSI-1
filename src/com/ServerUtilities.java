@@ -16,52 +16,64 @@ public class  ServerUtilities
 	 */
 	public static String getCookieValue(Cookie[] cookies, String cookieName) 
 	{
-		Cookie cookie;
-		for(int i=0; i<cookies.length; i++) 
+		Cookie temp_cookie;
+		if (cookies == null)
 		{
-			cookie = cookies[i];
-			if (cookieName.equals(cookie.getName()))
-			return(cookie.getValue());
+			return "";
+		}
+		else
+		{
+			for(int i=0; i<cookies.length; i++)
+			{
+				temp_cookie = cookies[i];
+				if (cookieName.equals(temp_cookie.getName()))
+				return(temp_cookie.getValue());
+			}
 		}
 		return "";
 	}
 
-	/* 
-	 * This function takes the cookieValue and extracts the sessionID from it.
-	 * This sessionID is used to get the SessionDetail object from the sessionMap.
-	 * The message is written to the object and the object is returned back to the
-	 * caller.
-	 */
-	public static SessionDetails replaceRoutine(String cookieValue, String message)
+	public static SessionDetails retrieveFromSessionMap (String cookieValue)
 	{
 		String value[] = cookieValue.split("_");
 		SessionDetails sd =  Server.sessionMap.get(value[0]);
-		
+		return sd;
+	}
+	
+	public static void updateSessionMap(String cookieValue, SessionDetails sd)
+	{
+		String value[] = cookieValue.split("_");
+		Server.sessionMap.put(value[0], sd);
+	}
+	
+	public static SessionDetails updateVersion(SessionDetails sd, short version)
+    {
+		sd.setVersion(version);
+    	return sd;
+    }
+	
+	public static SessionDetails incrementVersion(SessionDetails sd)
+    {
+		sd.setVersion((short) (sd.getVersion()+1));
+    	return sd;
+    }
+    
+	
+	public static SessionDetails updateMessage(SessionDetails sd, String message)
+	{	
 		if(!(message == null) && !message.equals(""))
 		{
 			sd.setMessage(message);
-			Server.sessionMap.put(value[0], sd);
 		}
-		
-		// This function also additionally needs to refresh the timestamp value so...
-		sd = refreshRoutine(cookieValue); 
 		return sd;
 	}
-
-	/* 
-	 * This function extracts the SessionDetails object from the sessionMap using
-	 * the cookieValue. It then replaces the expiry timeStamp by a new value. This
-	 * new value is equal to the current time + expiry duration
-	 */
+	
 	@SuppressWarnings("deprecation")
-	public static SessionDetails refreshRoutine(String cookieValue)
+	public static SessionDetails updateTimeStamp(SessionDetails sd)
 	{
-		String value[] = cookieValue.split("_");
-		SessionDetails sd =  Server.sessionMap.get(value[0]);
-		Date currTime = new Date();
-		currTime.setMinutes(currTime.getMinutes()+Server.sessionTimeOutDuration);
-		sd.setTimeStamp(currTime);
-		Server.sessionMap.put(value[0], sd);
+		Date newTimeStamp = new Date();
+		newTimeStamp.setMinutes(newTimeStamp.getMinutes()+(Server.sessionTimeOutDuration/60));
+		sd.setTimeStamp(newTimeStamp);
 		return sd;
 	}
 
@@ -69,11 +81,10 @@ public class  ServerUtilities
 	 * This function is used delete an entry from the sessionMap when a user logs
 	 * out. It uses sessionID as key, which is extracted from cookieValue
 	 */
-	public static void logoutRoutine(String cookieValue)
+	public static void deleteFromSessionMap(String cookieValue)
 	{
 		String value[] = cookieValue.split("_");
 		Server.sessionMap.remove(value[0]);
-		
 	}
 	/* 
 	 * This function is used to put the session details in an object and
@@ -81,22 +92,12 @@ public class  ServerUtilities
 	 */
 	
 	@SuppressWarnings("deprecation")
-	public static SessionDetails register(String sessionID,String locationMetaData)
+	public static SessionDetails register(String sessionID,String locationMetadata)
 	{	
 		Date expiry = new Date();
-		expiry.setMinutes(expiry.getMinutes()+Server.sessionTimeOutDuration);
-		SessionDetails sd = new SessionDetails(sessionID,locationMetaData, expiry,"Hello User !",(short) 1);
+		expiry.setMinutes(expiry.getMinutes()+(Server.sessionTimeOutDuration/60));
+		SessionDetails sd = new SessionDetails(sessionID,locationMetadata, expiry,"Hello User !",(short) 1);
 		Server.sessionMap.put(sessionID, sd);
-		return sd;
-	}
-
-	/*
-	 * This function is used to return SessionDetails associated with a 
-	 * given sessionID
-	 */
-	public static SessionDetails getRegisteredSession(String id)
-	{	
-		SessionDetails sd = Server.sessionMap.get(id);	
 		return sd;
 	}
 }

@@ -26,43 +26,98 @@ public class ActionServer extends HttpServlet
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
-		Cookie[] cookies = request.getCookies();	
-		if(cookies!=null &&  ServerUtilities.getCookieValue(cookies, "CS5300PROJ1SESSION")!= "")
+		Cookie[] cookies = request.getCookies();
+		String cookieValue = ServerUtilities.getCookieValue(cookies, "CS5300PROJ1SESSION");
+		SessionDetails sd;
+		if(!cookieValue.equals("")) // means cookie is present
 		{
+			System.out.println("CookieValue: "+cookieValue); // for debugging
 			String command = request.getParameter("cmd");
-			String cookieValue = ServerUtilities.getCookieValue(cookies, "CS5300PROJ1SESSION");
-			
 			if(command.equals("Replace"))
 			{
 				String message = request.getParameter("NewText");
-				SessionDetails sd = ServerUtilities.replaceRoutine(cookieValue,message);
+				sd = ServerUtilities.retrieveFromSessionMap(cookieValue);
+				sd = ServerUtilities.updateMessage(sd, message);
+				System.out.println(sd); // for debuggin
+				sd = ServerUtilities.incrementVersion(sd);
+				sd = ServerUtilities.updateTimeStamp(sd);
+				ServerUtilities.updateSessionMap(cookieValue, sd);
+				
+				cookieValue = Server.getOldCookieName(sd); // true will also register it
+				
+				Cookie cookie = new Cookie ("CS5300PROJ1SESSION", cookieValue);
+				cookie.setMaxAge(Server.sessionTimeOutDuration);
+				response.addCookie(cookie);
+				
 				request.setAttribute("name", sd.getMessage());
 				request.setAttribute("timestamp", sd.getTimeStamp());
 				request.getRequestDispatcher("index.jsp").forward(request, response);
 			}
 			else if(command.equals("Refresh"))
 			{
-				SessionDetails sd = ServerUtilities.refreshRoutine(cookieValue);
+				sd = ServerUtilities.retrieveFromSessionMap(cookieValue);
+				System.out.println(sd);
+				sd = ServerUtilities.incrementVersion(sd);
+				sd = ServerUtilities.updateTimeStamp(sd);
+				ServerUtilities.updateSessionMap(cookieValue, sd);
+				
+				cookieValue = Server.getOldCookieName(sd); 
+				
+				Cookie cookie = new Cookie ("CS5300PROJ1SESSION", cookieValue);
+				cookie.setMaxAge(Server.sessionTimeOutDuration);
+				response.addCookie(cookie);
+				
 				request.setAttribute("name", sd.getMessage());
 				request.setAttribute("timestamp", sd.getTimeStamp());
-				Cookie cookie = new Cookie ("CS5300PROJ1SESSION",sd.getSessionID()+"_"+sd.getVersion()
-											+"_"+sd.getLocationMetadata());
-				cookie.setMaxAge(Server.sessionTimeOutDuration*60);
-				response.addCookie(cookie);			
 				request.getRequestDispatcher("index.jsp").forward(request, response);
 			}
-			else
+			else // logout
 			{				
-				ServerUtilities.logoutRoutine(cookieValue);
+				ServerUtilities.deleteFromSessionMap(cookieValue);
+				
 				Cookie cookie = new Cookie ("CS5300PROJ1SESSION",null);
 				cookie.setMaxAge(0);
 				response.addCookie(cookie);	
 				response.sendRedirect("logout.jsp");
 			}
 		}
-		else
+		else // No cookie found i.e. expired
 		{
-			response.sendRedirect("logout.jsp");
+			String command = request.getParameter("cmd");
+			if(command.equals("Replace"))
+			{
+				String message = request.getParameter("NewText");
+				cookieValue = Server.getNewCookieName(request);
+				
+				sd = ServerUtilities.retrieveFromSessionMap(cookieValue);
+				sd = ServerUtilities.updateMessage(sd, message);
+				ServerUtilities.updateSessionMap(cookieValue, sd);
+				
+				Cookie cookie = new Cookie ("CS5300PROJ1SESSION", cookieValue);
+				cookie.setMaxAge(Server.sessionTimeOutDuration);
+				response.addCookie(cookie);
+				
+				request.setAttribute("name", sd.getMessage());
+				request.setAttribute("timestamp", sd.getTimeStamp());
+				request.getRequestDispatcher("index.jsp").forward(request, response);
+			}
+			else if(command.equals("Refresh"))
+			{
+				cookieValue = Server.getNewCookieName(request); // true will also register it
+				
+				Cookie cookie = new Cookie ("CS5300PROJ1SESSION", cookieValue);
+				cookie.setMaxAge(Server.sessionTimeOutDuration);
+				response.addCookie(cookie);
+				
+				sd = ServerUtilities.retrieveFromSessionMap(cookieValue);
+				request.setAttribute("name", sd.getMessage());
+				request.setAttribute("timestamp", sd.getTimeStamp());
+				request.getRequestDispatcher("index.jsp").forward(request, response);
+			}
+			else // logout
+			{				
+				response.sendRedirect("logout.jsp");
+			}
 		}
 	}
 
