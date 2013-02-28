@@ -54,19 +54,17 @@ function limitText(limitField, limitNum)
 		<input type=text name=NewText size=40 onkeyup="limitText(this,150)">&nbsp;&nbsp;
 		</form>
 		<form method=POST action="ActionServer">
-		<input type=submit name=cmd value=Refresh>
+		<input type=submit name=cmd value=Refresh >
 		</form>
 		<form method=POST action="ActionServer">
-		<input type=submit name=cmd value=LogOut>
+		<input type=submit name=cmd value=LogOut >
 		</form>
 		<br/>
-		----------------------------------------------------------
 		<br/>
-		<b>Expires: </b>
+		<b>Expires: </b><br/>
 		<%=request.getAttribute("timestamp")%>		
 		
 		<br/><br/><b>Server Location :</b>&nbsp;
 		<div id  = "locationMetadata"></div><br/>
-		----------------------------------------------------------
 		</body>
 </html>
