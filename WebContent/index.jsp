@@ -4,30 +4,28 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
+<title>LSI-1</title>
 
 <script>
 
-function readCookie(name) {
+function readCookie(name)
+{
     var nameEQ = name + "=";
     var ca = document.cookie.split(';'); // document.cookie returns all cookie for the site
-    for(var i=0;i < ca.length;i++) {
+    for(var i=0;i < ca.length;i++)
+    {
         var c = ca[i];
         if (c.indexOf(nameEQ) == 0) 
         while (c.charAt(0)==' ') c = c.substring(1,c.length);
         	{
-        	
- 	         var s = c.substring(nameEQ.length,c.length)
+ 	         var s = c.substring(nameEQ.length,c.length);
  	         //alert(s);
- 	         s=s.replace(/[^a-zA-Z0-9_.-]/g, '');
+ 	         s=s.replace(/[^a-zA-Z0-9_.-:]/g, '');
  	         //alert(s);
         	 var serverInfo = s.split('_');
         	 if(serverInfo.length == 3)
-        		 {
-        			 document.getElementById("sessionInfo").innerHTML = serverInfo[1];
-        			 document.getElementById("exprationInfo").innerHTML = serverInfo[2];
-        			 document.getElementById("cookieinfo").innerHTML = serverInfo;
-        			 
+        		 {        			 
+        			 document.getElementById("locationMetadata").innerHTML = serverInfo[2];
         		 }
         	}
     }
@@ -35,17 +33,16 @@ function readCookie(name) {
 }
 
 
-function limitText(limitField, limitNum) {
-    if (limitField.value.length > limitNum) {
+function limitText(limitField, limitNum)
+{
+    if (limitField.value.length > limitNum)
+    {
         limitField.value = limitField.value.substring(0, limitNum);
         alert("Limit is 150 characters");
     }
-    
 }
 
 </script>
-
-
 </head>
 		<body onload="readCookie('CS5300PROJ1SESSION')">
 		<big><big><b id = "userGreeting">
@@ -62,16 +59,12 @@ function limitText(limitField, limitNum) {
 		<form method=POST action="ActionServer">
 		<input type=submit name=cmd value=LogOut>
 		</form>
-		<p>
-		  
-		<b>Session on</b><div id  = "sessionInfo"><u>Dummydata 123.45.67.89:80</u></div><br/>
-		 
-		<p>
-		<b><%=request.getAttribute("timestamp")%></b>		
-		
-		<b>Expires</b><div id  = "exprationInfo"><u>Dummy DataFebruary 29, 2012 2:09:29 PM EST</u></div><br/>
 		
 		<br/>
-		<div id = "cookieinfo"></div>
+		<b>Expires</b>
+		<b><%=request.getAttribute("timestamp")%></b>		
+		
+		<br/><br/><b>Location :</b>&nbsp;
+		<div id  = "locationMetadata"><u>Dummy DataFebruary 29, 2012 2:09:29 PM EST</u></div><br/>
 		</body>
 </html>

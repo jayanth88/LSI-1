@@ -3,13 +3,18 @@ package com;
 import java.util.Date;
 import java.util.Iterator;
 
-public class DaemonThread extends Thread{
-	
+/* 
+ * This is a thread that runs in the background after a certain interval
+ * and cleans up Server.sessionMap by deleting the timed-out entries.
+ */
+public class DaemonThread extends Thread
+{	
+	final int gcThreadSleepTime =  80000;
 	public void run()
 	{
 		while(true)
 		{
-			System.out.println("Running");
+			System.out.println("GC Thread running...");
 			try
 			{
 				Iterator<String> i=Server.sessionMap.keySet().iterator();
@@ -22,12 +27,13 @@ public class DaemonThread extends Thread{
 					sd = Server.sessionMap.get(key);
 					if(sd.isExpired(currentTimeStamp))
 					{
-						System.out.println(key+"Expired");
 						Server.sessionMap.remove(key);
+						System.out.println("Cleared data with key: "+key);
 					}
 				}
-				Thread.sleep(120000);
-			}catch(Exception e)
+				Thread.sleep(gcThreadSleepTime);
+			}
+			catch(Exception e)
 			{
 				e.printStackTrace();
 			}

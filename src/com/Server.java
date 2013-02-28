@@ -1,9 +1,6 @@
 package com;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.util.Random; 
-import java.util.Date;
 import java.util.Hashtable;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,25 +9,32 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
+/* 
+ * This servlet handles the initial requests when the project url is hit for the
+ * first time. The GET request it receives from the user is handled here. A new
+ * cookie with a unique name is instantiated and added to the response. This is used
+ * for identifying user session if it sends further requests.
+ */
+
 @WebServlet("/Server")
-public class Server extends HttpServlet {
-	
+public class Server extends HttpServlet
+{
 	static Hashtable<String, SessionDetails> sessionMap = new Hashtable<String, SessionDetails>(); 
-	static int counter = 0; 
+	static  int counter = 0; 
 	static int sessionTimeOutDuration = 1; // in minutes
 	private static final long serialVersionUID = 1L;
-	DaemonThread dt=new DaemonThread();
-       
- 
+	DaemonThread garbageCollector=new DaemonThread();
+     
     public Server() {
         super();
-        dt.start();
+        garbageCollector.start();
         }
    
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
+		Cookie[] cookies = request.getCookies();
 		
-		Cookie[] cookies = request.getCookies();	
 		if(cookies!=null &&  ServerUtilities.getCookieValue(cookies, "CS5300PROJ1SESSION")!= "")
 		{
 			String values[] = ServerUtilities.getCookieValue(cookies, "CS5300PROJ1SESSION").split("_");
@@ -42,18 +46,14 @@ public class Server extends HttpServlet {
 		}
 		else
 		{
-			
-			String locationMetadata = request.getRemoteHost()+":"+request.getServerPort();
-			String sessionid = request.getRemoteHost().replace(".", "")+Server.counter++; 
-			System.out.println(locationMetadata+"*********"+sessionid);
+			// Setup the server for the first time over here
+			String locationMetadata=request.getLocalAddr()+":"+request.getServerPort();
+			String sessionid = request.getLocalAddr().replace(".", "")+((Server.counter++)%99999); 
 			SessionDetails sd = ServerUtilities.register(sessionid,locationMetadata);
 			
 			String cookieValue = sd.getSessionID()+"_"+sd.getVersion()+"_"+sd.getLocationMetadata();
-			System.out.println("*********"+cookieValue+"<<<");
 			Cookie cookie = new Cookie ("CS5300PROJ1SESSION", cookieValue);
 			cookie.setMaxAge(sessionTimeOutDuration*60);
-			
-			
 			request.setAttribute("name", sd.getMessage());
 			request.setAttribute("timestamp", sd.getTimeStamp());
 			response.addCookie(cookie);
@@ -61,11 +61,8 @@ public class Server extends HttpServlet {
 		}
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	{
+		// Nothing here
 	}
-
 }

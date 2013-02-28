@@ -2,9 +2,18 @@ package com;
 
 import java.util.Date;
 
+/* 
+ * This is a container class for storing all the session details for a given
+ * sessionID. The cookie in the client holds the session ID which maps to an
+ * instance of this class using Server.sessionMap
+ */
 public class SessionDetails
 {
 	String sessionID;
+	String locationMetadata;
+	Date timeStamp;
+	String message;
+	short version;
 	
 	public SessionDetails(String sessionID, String locationMetadata,
 			Date timeStamp, String message, short version) {
@@ -19,44 +28,49 @@ public class SessionDetails
 	{
 		
 	}
-	String locationMetadata;
-	Date timeStamp;
-	String message;
-	short version;
 	
-	
-	
-	public synchronized String getSessionID() {
+	public synchronized String getSessionID()
+	{
 		return sessionID;
 	}
-	public synchronized void setSessionID(String sessionID) {
+	public synchronized void setSessionID(String sessionID)
+	{
 		this.sessionID = sessionID;
 	}
-	public synchronized String getLocationMetadata() {
+	public synchronized String getLocationMetadata()
+	{
 		return locationMetadata;
 	}
-	public synchronized void setLocationMetadata(String locationMetadata) {
+	public synchronized void setLocationMetadata(String locationMetadata)
+	{
 		this.locationMetadata = locationMetadata;
 	}
-	public synchronized Date getTimeStamp() {
+	public synchronized Date getTimeStamp()
+	{
 		return timeStamp;
 	}
-	public synchronized void setTimeStamp(Date timeStamp) {
+	public synchronized void setTimeStamp(Date timeStamp)
+	{
 		this.timeStamp = timeStamp;
 	}
-	public synchronized String getMessage() {
+	public synchronized String getMessage()
+	{
 		return message;
 	}
-	public synchronized void setMessage(String message) {
+	public synchronized void setMessage(String message)
+	{
 		this.message = message;
 	}
-	public synchronized short getVersion() {
+	public synchronized short getVersion()
+	{
 		return version;
 	}
-	public synchronized void setVersion(short version) {
+	public synchronized void setVersion(short version)
+	{
 		this.version = version;
 	}
 	
+	// To check if the timeStamp of the instance has expired or not
 	public boolean isExpired(Date currentTimeStamp)
 	{
 		if(timeStamp.compareTo(currentTimeStamp)>0)

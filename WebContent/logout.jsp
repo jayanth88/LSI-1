@@ -4,9 +4,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
+<title>LSI-1</title>
 </head>
 <body>
-BYEE
+BYEE!
 </body>
 </html>

@@ -1,30 +1,37 @@
 package com;
 
 import java.util.Date;
-
 import javax.servlet.http.Cookie;
 
-import com.sun.jmx.snmp.Timestamp;
-import com.sun.org.apache.bcel.internal.generic.NEW;
+/* 
+ * This class contains static methods that the servlets Server and ActionServer
+ * use.
+ */
 
-public class  ServerUtilities {
-	
+public class  ServerUtilities
+{ 
+	/* 
+	 * This function iterates through the cookie list and extracts the cookie
+	 * with value equal to cookieName
+	 */
 	public static String getCookieValue(Cookie[] cookies, String cookieName) 
 	{
-			for(int i=0; i<cookies.length; i++) 
-			{
-				Cookie cookie = cookies[i];
-				if (cookieName.equals(cookie.getName()))
-				return(cookie.getValue());
-			}
-			return "";
-	}
-	
-	public static void replace()
-	{
-		
+		Cookie cookie;
+		for(int i=0; i<cookies.length; i++) 
+		{
+			cookie = cookies[i];
+			if (cookieName.equals(cookie.getName()))
+			return(cookie.getValue());
+		}
+		return "";
 	}
 
+	/* 
+	 * This function takes the cookieValue and extracts the sessionID from it.
+	 * This sessionID is used to get the SessionDetail object from the sessionMap.
+	 * The message is written to the object and the object is returned back to the
+	 * caller.
+	 */
 	public static SessionDetails replaceRoutine(String cookieValue, String message)
 	{
 		String value[] = cookieValue.split("_");
@@ -35,9 +42,17 @@ public class  ServerUtilities {
 			sd.setMessage(message);
 			Server.sessionMap.put(value[0], sd);
 		}
+		
+		// This function also additionally needs to refresh the timestamp value so...
+		sd = refreshRoutine(cookieValue); 
 		return sd;
 	}
 
+	/* 
+	 * This function extracts the SessionDetails object from the sessionMap using
+	 * the cookieValue. It then replaces the expiry timeStamp by a new value. This
+	 * new value is equal to the current time + expiry duration
+	 */
 	@SuppressWarnings("deprecation")
 	public static SessionDetails refreshRoutine(String cookieValue)
 	{
@@ -50,14 +65,20 @@ public class  ServerUtilities {
 		return sd;
 	}
 
+	/* 
+	 * This function is used delete an entry from the sessionMap when a user logs
+	 * out. It uses sessionID as key, which is extracted from cookieValue
+	 */
 	public static void logoutRoutine(String cookieValue)
 	{
-
 		String value[] = cookieValue.split("_");
-		SessionDetails sd =  Server.sessionMap.remove(value[0]);
+		Server.sessionMap.remove(value[0]);
 		
 	}
-	
+	/* 
+	 * This function is used to put the session details in an object and
+	 * map it against a given sessionID
+	 */
 	
 	@SuppressWarnings("deprecation")
 	public static SessionDetails register(String sessionID,String locationMetaData)
@@ -69,11 +90,13 @@ public class  ServerUtilities {
 		return sd;
 	}
 
-	public static SessionDetails getRegisteredSession(String id) {
-		
-		SessionDetails sd = Server.sessionMap.get(id);
-		
+	/*
+	 * This function is used to return SessionDetails associated with a 
+	 * given sessionID
+	 */
+	public static SessionDetails getRegisteredSession(String id)
+	{	
+		SessionDetails sd = Server.sessionMap.get(id);	
 		return sd;
 	}
-	
 }
