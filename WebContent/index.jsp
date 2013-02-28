@@ -59,12 +59,14 @@ function limitText(limitField, limitNum)
 		<form method=POST action="ActionServer">
 		<input type=submit name=cmd value=LogOut>
 		</form>
-		
 		<br/>
-		<b>Expires</b>
-		<b><%=request.getAttribute("timestamp")%></b>		
+		----------------------------------------------------------
+		<br/>
+		<b>Expires: </b>
+		<%=request.getAttribute("timestamp")%>		
 		
-		<br/><br/><b>Location :</b>&nbsp;
+		<br/><br/><b>Server Location :</b>&nbsp;
 		<div id  = "locationMetadata"></div><br/>
+		----------------------------------------------------------
 		</body>
 </html>
